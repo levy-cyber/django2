@@ -33,6 +33,7 @@
   ],
   "installCommand": "pip install -r requirements.txt && npm install",
   "buildCommand": "npm run build && python manage.py collectstatic --noinput",
+  "outputDirectory": "static",
   "env": {
     "DJANGO_SETTINGS_MODULE": "config.settings.production"
   }
