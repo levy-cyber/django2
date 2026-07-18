@@ -3,7 +3,11 @@
   "builds": [
     {
       "src": "api/index.py",
-      "use": "@vercel/python"
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "15mb",
+        "runtime": "python3.14"
+      }
     }
   ],
   "routes": [
@@ -20,13 +24,15 @@
     },
     {
       "src": "/favicon.ico",
-      "dest": "/static/icons/favicon.ico"
+      "dest": "/static/icons/icon-192x192.png"
     },
     {
       "src": "/(.*)",
       "dest": "/api/index.py"
     }
   ],
+  "installCommand": "pip install -r requirements.txt && npm install",
+  "buildCommand": "npm run build && python manage.py collectstatic --noinput",
   "env": {
     "DJANGO_SETTINGS_MODULE": "config.settings.production"
   }
