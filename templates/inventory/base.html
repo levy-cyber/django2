@@ -1,0 +1,42 @@
+{% extends "web/app/app_base.html" %}
+{% load i18n %}
+
+{% block sidebar-nav %}
+  <aside class="menu w-full">
+    <p class="menu-title">Inventory</p>
+    <ul>
+      <li><a href="{% url 'inventory:dashboard' %}" class="py-2 {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+        <i class="fa fa-home"></i> Dashboard
+      </a></li>
+      {% if is_admin %}
+      <li><a href="{% url 'inventory:product_list' %}" class="py-2 {% if request.resolver_match.url_name == 'product_list' or 'product' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="fa fa-box"></i> Products
+      </a></li>
+      <li><a href="{% url 'inventory:category_list' %}" class="py-2 {% if request.resolver_match.url_name == 'category_list' or 'category' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="fa fa-tags"></i> Categories
+      </a></li>
+      <li><a href="{% url 'inventory:low_stock_report' %}" class="py-2 {% if request.resolver_match.url_name == 'low_stock_report' %}active{% endif %}">
+        <i class="fa fa-exclamation-triangle"></i> Low Stock
+      </a></li>
+      {% else %}
+      <li><a href="{% url 'inventory:product_list' %}" class="py-2 {% if request.resolver_match.url_name == 'product_list' or 'product' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="fa fa-eye"></i> View Products
+      </a></li>
+      {% endif %}
+    </ul>
+    <p class="menu-title">Sales</p>
+    <ul>
+      <li><a href="{% url 'inventory:sale_create' %}" class="py-2 {% if request.resolver_match.url_name == 'sale_create' or 'sale' in request.resolver_match.url_name %}active{% endif %}">
+        <i class="fa fa-shopping-cart"></i> New Sale
+      </a></li>
+      <li><a href="{% url 'inventory:sale_list' %}" class="py-2 {% if request.resolver_match.url_name == 'sale_list' %}active{% endif %}">
+        <i class="fa fa-history"></i> Sales History
+      </a></li>
+      {% if is_admin %}
+      <li><a href="{% url 'inventory:sales_report' %}" class="py-2 {% if request.resolver_match.url_name == 'sales_report' %}active{% endif %}">
+        <i class="fa fa-chart-bar"></i> Reports
+      </a></li>
+      {% endif %}
+    </ul>
+  </aside>
+{% endblock %}

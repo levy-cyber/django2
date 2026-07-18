@@ -73,6 +73,7 @@ THIRD_PARTY_APPS = [
 PROJECT_APPS = [
     "apps.users.apps.UserConfig",
     "apps.web",
+    "apps.inventory",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + PROJECT_APPS
@@ -277,7 +278,7 @@ MEDIA_URL = "/media/"
 # Vite Integration
 DJANGO_VITE = {
     "default": {
-        "dev_mode": env.bool("DJANGO_VITE_DEV_MODE", default=DEBUG),
+        "dev_mode": False,  # Use built assets for better performance
         "dev_server_host": env("DJANGO_VITE_HOST", default="localhost"),
         "dev_server_port": env.int("DJANGO_VITE_PORT", default=5173),
         "manifest_path": BASE_DIR / "static" / ".vite" / "manifest.json",

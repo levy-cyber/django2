@@ -18,6 +18,14 @@
             <input class="btn btn-primary btn-block" type="submit" value="{% translate "Sign In" %}">
           </div>
         </form>
+        <div class="flex justify-between text-sm mt-4">
+          <a href="{% url 'account_reset_password' %}" class="link link-hover">
+            {% translate "Forgot Password?" %}
+          </a>
+          <a href="{% url 'account_signup' %}" class="link link-hover">
+            {% translate "Create an Account" %}
+          </a>
+        </div>
         {% if LOGIN_BY_CODE_ENABLED %}
         <p class="pg-text-centered pg-text-muted">
           <a class="text-sm muted-link" href="{{ request_login_code_url }}">

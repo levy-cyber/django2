@@ -1,0 +1,89 @@
+{% extends "inventory/base.html" %}
+{% load i18n %}
+
+{% block app %}
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-bold">
+      <i class="fa fa-exclamation-triangle text-warning"></i> Low Stock Report
+    </h1>
+    <a href="{% url 'inventory:dashboard' %}" class="btn btn-ghost">
+      <i class="fa fa-arrow-left"></i> Back to Dashboard
+    </a>
+  </div>
+
+  <div class="alert alert-warning">
+    <i class="fa fa-info-circle"></i>
+    <div>
+      <h3 class="font-bold">{{ products|length }} products are below minimum stock level</h3>
+      <div class="text-sm">Consider restocking these items soon to avoid stockouts.</div>
+    </div>
+  </div>
+
+  <div class="card bg-base-100 shadow">
+    <div class="card-body p-0">
+      <div class="overflow-x-auto">
+        <table class="table table-zebra">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>SKU</th>
+              <th>Category</th>
+              <th>Current Stock</th>
+              <th>Minimum Level</th>
+              <th>Difference</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for product in products %}
+              <tr class="text-warning">
+                <td>
+                  <div class="flex items-center gap-3">
+                    {% if product.image %}
+                      <div class="avatar">
+                        <div class="mask mask-squircle w-10 h-10">
+                          <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                        </div>
+                      </div>
+                    {% endif %}
+                    <div class="font-bold">{{ product.name }}</div>
+                  </div>
+                </td>
+                <td>{{ product.sku }}</td>
+                <td>{{ product.category.name|default:"-" }}</td>
+                <td class="font-bold">{{ product.quantity }}</td>
+                <td>{{ product.min_stock_level }}</td>
+                <td class="font-bold">
+                  {{ product.min_stock_level|add:product.quantity|add:-1 }}
+                </td>
+                <td>
+                  <div class="flex gap-2">
+                    <a href="{% url 'inventory:product_detail' product.pk %}" class="btn btn-sm btn-ghost">
+                      <i class="fa fa-eye"></i>
+                    </a>
+                    {% if is_admin %}
+                      <a href="{% url 'inventory:stock_adjust' product.pk %}" class="btn btn-sm btn-secondary">
+                        <i class="fa fa-balance-scale"></i> Adjust
+                      </a>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="7" class="text-center py-8">
+                  <div class="text-gray-500">
+                    <i class="fa fa-check-circle text-4xl mb-2 text-success"></i>
+                    <p>All products are well stocked!</p>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

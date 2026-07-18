@@ -24,6 +24,27 @@
       {% endif %}
       {% render_text_input form.first_name %}
       {% render_text_input form.last_name %}
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text font-bold">{% translate "Role" %}</span>
+        </label>
+        <div class="badge badge-ghost badge-lg">
+          {% if user.user_type == 'admin' %}
+            <i class="fa fa-shield-alt mr-2"></i>{% translate "Admin" %}
+          {% else %}
+            <i class="fa fa-user mr-2"></i>{% translate "Staff" %}
+          {% endif %}
+        </div>
+        <label class="label">
+          <span class="label-text-alt text-base-content/70">
+            {% if user.user_type == 'admin' %}
+              {% translate "Full system access" %}
+            {% else %}
+              {% translate "Limited access - sales and inventory view only" %}
+            {% endif %}
+          </span>
+        </label>
+      </div>
       <div class="mt-2">
         <input class="btn btn-primary" type="submit" value="{% translate "Save" %}">
       </div>

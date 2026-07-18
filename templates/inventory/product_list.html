@@ -1,0 +1,136 @@
+{% extends "inventory/base.html" %}
+{% load i18n %}
+
+{% block app %}
+<div class="space-y-6">
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <h1 class="text-2xl font-bold">Products</h1>
+    {% if is_admin %}
+      <a href="{% url 'inventory:product_create' %}" class="btn btn-primary">
+        <i class="fa fa-plus"></i> Add Product
+      </a>
+    {% endif %}
+  </div>
+
+  <!-- Search and Filter -->
+  <div class="card bg-base-100 shadow">
+    <div class="card-body">
+      <form method="get" class="flex flex-col md:flex-row gap-4">
+        <div class="form-control flex-1">
+          <input type="text" name="q" value="{{ query }}" placeholder="Search by name, SKU, or barcode..." class="input input-bordered w-full">
+        </div>
+        <div class="form-control">
+          <select name="category" class="select select-bordered">
+            <option value="">All Categories</option>
+            {% for category in categories %}
+              <option value="{{ category.id }}" {% if category.id|stringformat:"s" == selected_category %}selected{% endif %}>
+                {{ category.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-control">
+          <label class="label cursor-pointer">
+            <span class="label-text">Low Stock Only</span>
+            <input type="checkbox" name="low_stock" {% if low_stock %}checked{% endif %} class="checkbox checkbox-primary">
+          </label>
+        </div>
+        <button type="submit" class="btn btn-primary">
+          <i class="fa fa-search"></i> Search
+        </button>
+        {% if query or selected_category or low_stock %}
+          <a href="{% url 'inventory:product_list' %}" class="btn btn-ghost">
+            <i class="fa fa-times"></i> Clear
+          </a>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+
+  <!-- Products Table -->
+  <div class="card bg-base-100 shadow">
+    <div class="card-body p-0">
+      <div class="overflow-x-auto">
+        <table class="table table-zebra">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>SKU</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Stock</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for product in products %}
+              <tr>
+                <td>
+                  <div class="flex items-center gap-3">
+                    {% if product.image %}
+                      <div class="avatar">
+                        <div class="mask mask-squircle w-12 h-12">
+                          <img src="{{ product.image.url }}" alt="{{ product.name }}">
+                        </div>
+                      </div>
+                    {% endif %}
+                    <div>
+                      <div class="font-bold">{{ product.name }}</div>
+                      {% if product.barcode %}
+                        <div class="text-xs opacity-50">{{ product.barcode }}</div>
+                      {% endif %}
+                    </div>
+                  </div>
+                </td>
+                <td>{{ product.sku }}</td>
+                <td>{{ product.category.name|default:"-" }}</td>
+                <td>${{ product.price|floatformat:2 }}</td>
+                <td class="font-bold {% if product.is_low_stock %}text-warning{% endif %}">
+                  {{ product.quantity }}
+                </td>
+                <td>
+                  {% if product.is_low_stock %}
+                    <span class="badge badge-warning">Low Stock</span>
+                  {% else %}
+                    <span class="badge badge-success">In Stock</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="flex gap-2">
+                    <a href="{% url 'inventory:product_detail' product.pk %}" class="btn btn-sm btn-ghost">
+                      <i class="fa fa-eye"></i>
+                    </a>
+                    {% if is_admin %}
+                      <a href="{% url 'inventory:product_update' product.pk %}" class="btn btn-sm btn-ghost">
+                        <i class="fa fa-edit"></i>
+                      </a>
+                      <a href="{% url 'inventory:product_delete' product.pk %}" class="btn btn-sm btn-ghost text-error">
+                        <i class="fa fa-trash"></i>
+                      </a>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="7" class="text-center py-8">
+                  <div class="text-gray-500">
+                    <i class="fa fa-box text-4xl mb-2"></i>
+                    <p>No products found</p>
+                    {% if is_admin %}
+                      <a href="{% url 'inventory:product_create' %}" class="btn btn-sm btn-primary mt-2">
+                        Add your first product
+                      </a>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -14,12 +14,22 @@ def _get_avatar_filename(instance, filename):
     return f"profile-pictures/{uuid.uuid4()}.{filename.split('.')[-1]}"
 
 
+class UserTypes(models.TextChoices):
+    ADMIN = 'admin', 'Admin'
+    STAFF = 'staff', 'Staff'
+
 class CustomUser(AbstractUser):
     """
     Add additional fields to the user model here.
     """
 
     avatar = models.FileField(upload_to=_get_avatar_filename, blank=True, validators=[validate_profile_picture])
+    user_type = models.CharField(
+        max_length=10,
+        choices=UserTypes.choices,
+        default=UserTypes.STAFF,
+        help_text='User role: Admin has full access, Staff has limited access'
+    )
 
     def __str__(self):
         return f"{self.get_full_name()} <{self.email or self.username}>"

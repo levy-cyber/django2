@@ -53,10 +53,26 @@ Install these once on your machine:
 - **`make`** — preinstalled on macOS/Linux. On Windows,
   [follow these instructions](https://stackoverflow.com/a/57042516/8207).
 
-### 1. Bootstrap (`make init`)
+### 1. Bootstrap
 
 From the project root:
 
+**Windows (PowerShell):**
+```powershell
+# Copy environment file
+if (-not (Test-Path .env)) { Copy-Item .env.example .env }
+
+# Install Python dependencies
+uv sync
+
+# Install front-end dependencies
+npm install
+
+# Run migrations
+uv run python manage.py migrate
+```
+
+**Unix/Linux/macOS:**
 ```bash
 make init
 ```
@@ -88,14 +104,26 @@ Local development needs **two terminals running simultaneously** — the Django 
 front-end server. In `DEBUG`, CSS/JS are served by Vite, so **if you skip the second process the page
 loads unstyled.**
 
-**Terminal 1 — Django backend (port 8000):**
+**Windows (PowerShell):**
 
+**Terminal 1 — Django backend (port 8000):**
+```powershell
+uv run python manage.py runserver
+```
+
+**Terminal 2 — Vite front end (port 5173):**
+```powershell
+npm run dev
+```
+
+**Unix/Linux/macOS:**
+
+**Terminal 1 — Django backend (port 8000):**
 ```bash
 make start
 ```
 
 **Terminal 2 — Vite front end (port 5173):**
-
 ```bash
 make npm-dev
 ```
@@ -114,6 +142,42 @@ New to Pegasus? [Try these next steps](https://docs.saaspegasus.com/getting-star
 ---
 
 ## Everyday commands
+
+**Windows (PowerShell):**
+```powershell
+# Django dev server
+uv run python manage.py runserver
+
+# Django Python shell
+uv run python manage.py shell
+
+# Database shell (SQLite locally)
+uv run python manage.py dbshell
+
+# Run any manage.py command
+uv run python manage.py <command>
+
+# Create new migrations
+uv run python manage.py makemigrations
+
+# Apply migrations
+uv run python manage.py migrate
+
+# Run the test suite
+uv run python manage.py test
+
+# Format and lint Python with Ruff
+uv run ruff format .
+uv run ruff check .
+
+# Vite dev server
+npm run dev
+
+# Build production front-end assets
+npm run build
+```
+
+**Unix/Linux/macOS:**
 
 Run `make` with no arguments to list every available target. Local targets (`start`, `migrate`,
 `test`, `shell`, …) run natively via `uv`; production targets are prefixed with `prod-` and use Docker.
@@ -140,6 +204,16 @@ Management commands can also be run directly: `uv run python manage.py <command>
 Local development uses **SQLite** by default — no setup required. Leaving `DATABASE_URL` unset makes
 Django use the `db.sqlite3` file in the project root.
 
+**Windows (PowerShell):**
+```powershell
+# Create new migrations
+uv run python manage.py makemigrations
+
+# Apply migrations
+uv run python manage.py migrate
+```
+
+**Unix/Linux/macOS:**
 ```bash
 make migrations   # uv run python manage.py makemigrations
 make migrate      # uv run python manage.py migrate
@@ -155,6 +229,25 @@ precedence over SQLite automatically.
 JavaScript/TypeScript lives in `assets/` and is bundled by [Vite](https://vitejs.dev/) and served
 through [`django-vite`](https://github.com/MrBin99/django-vite). Tailwind v4 + DaisyUI provide styling.
 
+**Windows (PowerShell):**
+```powershell
+# Install all npm packages
+npm install
+
+# Install a specific package
+npm install <package>
+
+# Vite dev server with hot reload (local development)
+npm run dev
+
+# Build optimized assets (production)
+npm run build
+
+# TypeScript type checking
+npm run type-check
+```
+
+**Unix/Linux/macOS:**
 ```bash
 make npm-install            # install all npm packages
 make npm-install <package>  # install a specific package
@@ -176,6 +269,14 @@ by the front end (see `assets/javascript/api.js`). It is generated code — don'
 
 Whenever you add or change API endpoints, regenerate the client:
 
+**Windows (PowerShell):**
+```powershell
+uv run python manage.py spectacular --file schema.yaml
+npx @openapitools/openapi-generator-cli generate -i schema.yaml -g typescript-fetch -o api-client
+Remove-Item schema.yaml
+```
+
+**Unix/Linux/macOS:**
 ```bash
 make generate-api-client
 ```
@@ -200,6 +301,12 @@ Celery runs background and scheduled tasks. **Locally, tasks run eagerly (synchr
 
 To exercise the real worker locally, run a Redis instance, set `REDIS_URL` in `.env`, then:
 
+**Windows (PowerShell):**
+```powershell
+uv run celery -A config worker -l INFO --beat --pool=solo
+```
+
+**Unix/Linux/macOS:**
 ```bash
 make celery
 # or directly:
@@ -215,6 +322,19 @@ In production (`DEBUG=False`) tasks dispatch to the Redis broker and are process
 
 ## Testing
 
+**Windows (PowerShell):**
+```powershell
+# Run everything
+uv run python manage.py test
+
+# Run a single module
+uv run python manage.py test apps.web.tests.test_basic_views
+
+# Reuse the test DB (faster)
+uv run python manage.py test apps.web.tests.test_basic_views --keepdb
+```
+
+**Unix/Linux/macOS:**
 ```bash
 make test                                              # run everything
 make test ARGS='apps.web.tests.test_basic_views'       # a single module
@@ -231,6 +351,23 @@ find . -name '*.py' | entr uv run python manage.py test apps.web.tests.test_basi
 
 ## Code quality & git hooks
 
+**Windows (PowerShell):**
+```powershell
+# Format and lint Python with Ruff
+uv run ruff format .
+uv run ruff check .
+
+# Format only
+uv run ruff format .
+
+# Lint + autofix only
+uv run ruff check --fix .
+
+# Type checking
+uv run mypy .
+```
+
+**Unix/Linux/macOS:**
 ```bash
 make ruff           # ruff format + lint --fix
 make ruff-format    # format only
@@ -240,6 +377,12 @@ make type-check     # mypy
 
 Install the pre-commit hooks (run automatically on every commit):
 
+**Windows (PowerShell):**
+```powershell
+uv run pre-commit install --install-hooks
+```
+
+**Unix/Linux/macOS:**
 ```bash
 uv run pre-commit install --install-hooks
 ```
@@ -296,6 +439,13 @@ Python dependencies) and run with `DJANGO_SETTINGS_MODULE=config.settings.prod`.
 
 ### 1. Configure secrets
 
+**Windows (PowerShell):**
+```powershell
+# Copy .env.prod.example -> .env.prod (git-ignored)
+if (-not (Test-Path .env.prod)) { Copy-Item .env.prod.example .env.prod }
+```
+
+**Unix/Linux/macOS:**
 ```bash
 make setup-env-prod    # copies .env.prod.example -> .env.prod (git-ignored)
 ```
@@ -306,6 +456,31 @@ the file). For real email, configure `EMAIL_BACKEND` and its credentials (e.g. M
 
 ### 2. Build and run
 
+**Windows (PowerShell):**
+```powershell
+# Build the production image
+docker-compose build
+
+# Start the stack (foreground)
+docker-compose up
+
+# Start the stack (background)
+docker-compose up -d
+
+# Stop the stack
+docker-compose down
+
+# Stop + start
+docker-compose down && docker-compose up -d
+
+# Shell into the running web container
+docker-compose exec web bash
+
+# Run a manage.py command in the web container
+docker-compose exec web python manage.py migrate
+```
+
+**Unix/Linux/macOS:**
 ```bash
 make prod-build                    # build the production image
 make prod-start                    # start the stack (foreground)

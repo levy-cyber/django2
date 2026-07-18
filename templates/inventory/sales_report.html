@@ -1,0 +1,135 @@
+{% extends "inventory/base.html" %}
+{% load i18n %}
+
+{% block app %}
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-bold">Sales Reports</h1>
+  </div>
+
+  <!-- Period Selector -->
+  <div class="card bg-base-100 shadow">
+    <div class="card-body">
+      <div class="flex flex-wrap gap-2">
+        <a href="?period=today" class="btn btn-sm {% if period == 'today' %}btn-primary{% else %}btn-ghost{% endif %}">
+          Today
+        </a>
+        <a href="?period=week" class="btn btn-sm {% if period == 'week' %}btn-primary{% else %}btn-ghost{% endif %}">
+          This Week
+        </a>
+        <a href="?period=month" class="btn btn-sm {% if period == 'month' %}btn-primary{% else %}btn-ghost{% endif %}">
+          This Month
+        </a>
+        <a href="?period=30days" class="btn btn-sm {% if period == '30days' %}btn-primary{% else %}btn-ghost{% endif %}">
+          Last 30 Days
+        </a>
+      </div>
+      <div class="text-sm opacity-70 mt-2">
+        {{ date_from|date:"M d, Y" }} - {{ date_to|date:"M d, Y" }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Stats -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="stats bg-base-200 shadow">
+      <div class="stat">
+        <div class="stat-figure text-success">
+          <i class="fa fa-dollar-sign text-3xl"></i>
+        </div>
+        <div class="stat-title">Total Revenue</div>
+        <div class="stat-value text-success">${{ total_sales|floatformat:2 }}</div>
+        <div class="stat-desc">{{ date_from|date:"M d" }} - {{ date_to|date:"M d, Y" }}</div>
+      </div>
+    </div>
+
+    <div class="stats bg-base-200 shadow">
+      <div class="stat">
+        <div class="stat-figure text-info">
+          <i class="fa fa-shopping-bag text-3xl"></i>
+        </div>
+        <div class="stat-title">Items Sold</div>
+        <div class="stat-value text-info">{{ total_items }}</div>
+        <div class="stat-desc">Total quantity</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Top Products & Sales by Staff -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Top Selling Products -->
+    <div class="card bg-base-100 shadow">
+      <div class="card-body">
+        <h2 class="card-title">
+          <i class="fa fa-trophy text-warning"></i> Top Selling Products
+        </h2>
+        <div class="overflow-x-auto">
+          <table class="table table-zebra">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>SKU</th>
+                <th>Quantity</th>
+                <th>Revenue</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for product in top_products %}
+                <tr>
+                  <td>{{ product.product__name }}</td>
+                  <td>{{ product.product__sku }}</td>
+                  <td class="font-bold">{{ product.total_quantity }}</td>
+                  <td class="text-success">${{ product.total_revenue|floatformat:2 }}</td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="4" class="text-center">No sales data</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sales by Staff -->
+    <div class="card bg-base-100 shadow">
+      <div class="card-body">
+        <h2 class="card-title">
+          <i class="fa fa-users text-info"></i> Sales by Staff
+        </h2>
+        <div class="overflow-x-auto">
+          <table class="table table-zebra">
+            <thead>
+              <tr>
+                <th>Staff Member</th>
+                <th>Sales Count</th>
+                <th>Total Revenue</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for staff in sales_by_staff %}
+                <tr>
+                  <td>
+                    {% if staff.sold_by__first_name or staff.sold_by__last_name %}
+                      {{ staff.sold_by__first_name }} {{ staff.sold_by__last_name }}
+                    {% else %}
+                      {{ staff.sold_by__email }}
+                    {% endif %}
+                  </td>
+                  <td>{{ staff.sale_count }}</td>
+                  <td class="text-success">${{ staff.total_sales|floatformat:2 }}</td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="3" class="text-center">No sales data</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

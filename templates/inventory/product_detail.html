@@ -1,0 +1,161 @@
+{% extends "inventory/base.html" %}
+{% load i18n %}
+
+{% block app %}
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-bold">{{ product.name }}</h1>
+    <div class="flex gap-2">
+      <a href="{% url 'inventory:product_list' %}" class="btn btn-ghost">
+        <i class="fa fa-arrow-left"></i> Back
+      </a>
+      {% if is_admin %}
+        <a href="{% url 'inventory:product_update' product.pk %}" class="btn btn-primary">
+          <i class="fa fa-edit"></i> Edit
+        </a>
+        <a href="{% url 'inventory:stock_adjust' product.pk %}" class="btn btn-secondary">
+          <i class="fa fa-balance-scale"></i> Adjust Stock
+        </a>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Product Details -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 space-y-6">
+      <!-- Basic Info -->
+      <div class="card bg-base-100 shadow">
+        <div class="card-body">
+          <h2 class="card-title">Product Information</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="label"><span class="label-text font-bold">Name</span></label>
+              <div class="text-lg">{{ product.name }}</div>
+            </div>
+            <div>
+              <label class="label"><span class="label-text font-bold">SKU</span></label>
+              <div class="text-lg">{{ product.sku }}</div>
+            </div>
+            <div>
+              <label class="label"><span class="label-text font-bold">Barcode</span></label>
+              <div>{{ product.barcode|default:"-" }}</div>
+            </div>
+            <div>
+              <label class="label"><span class="label-text font-bold">Category</span></label>
+              <div>{{ product.category.name|default:"-" }}</div>
+            </div>
+            <div class="md:col-span-2">
+              <label class="label"><span class="label-text font-bold">Description</span></label>
+              <div>{{ product.description|default:"-" }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pricing -->
+      <div class="card bg-base-100 shadow">
+        <div class="card-body">
+          <h2 class="card-title">Pricing</h2>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="label"><span class="label-text font-bold">Cost</span></label>
+              <div class="text-lg">${{ product.cost|floatformat:2 }}</div>
+            </div>
+            <div>
+              <label class="label"><span class="label-text font-bold">Selling Price</span></label>
+              <div class="text-lg text-success font-bold">${{ product.price|floatformat:2 }}</div>
+            </div>
+            <div>
+              <label class="label"><span class="label-text font-bold">Profit Margin</span></label>
+              <div class="text-lg {% if product.profit_margin > 0 %}text-success{% else %}text-error{% endif %}">
+                {{ product.profit_margin|floatformat:1 }}%
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stock Information -->
+      <div class="card bg-base-100 shadow">
+        <div class="card-body">
+          <h2 class="card-title">Stock Information</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="label"><span class="label-text font-bold">Current Stock</span></label>
+              <div class="text-3xl font-bold {% if product.is_low_stock %}text-warning{% else %}text-success{% endif %}">
+                {{ product.quantity }}
+              </div>
+            </div>
+            <div>
+              <label class="label"><span class="label-text font-bold">Minimum Stock Level</span></label>
+              <div class="text-lg">{{ product.min_stock_level }}</div>
+            </div>
+          </div>
+          {% if product.is_low_stock %}
+            <div class="alert alert-warning mt-4">
+              <i class="fa fa-exclamation-triangle"></i>
+              <span>This product is below minimum stock level!</span>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Image -->
+    <div class="card bg-base-100 shadow">
+      <div class="card-body">
+        <h2 class="card-title">Product Image</h2>
+        {% if product.image %}
+          <img src="{{ product.image.url }}" alt="{{ product.name }}" class="rounded-lg w-full">
+        {% else %}
+          <div class="aspect-square bg-base-200 rounded-lg flex items-center justify-center">
+            <i class="fa fa-image text-4xl text-gray-400"></i>
+          </div>
+        {% endif %}
+        <div class="text-sm opacity-50 mt-2">
+          Active: {% if product.is_active %}<span class="badge badge-success">Yes</span>{% else %}<span class="badge badge-error">No</span>{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stock Movements -->
+  <div class="card bg-base-100 shadow">
+    <div class="card-body">
+      <h2 class="card-title">
+        <i class="fa fa-history"></i> Stock Movements
+      </h2>
+      <div class="overflow-x-auto">
+        <table class="table table-zebra">
+          <thead>
+            <tr>
+              <th>Change</th>
+              <th>Reason</th>
+              <th>Notes</th>
+              <th>Performed By</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for movement in stock_movements %}
+              <tr>
+                <td class="font-bold {% if movement.quantity_change > 0 %}text-success{% else %}text-error{% endif %}">
+                  {% if movement.quantity_change > 0 %}+{% endif %}{{ movement.quantity_change }}
+                </td>
+                <td>{{ movement.get_reason_display }}</td>
+                <td>{{ movement.notes|default:"-" }}</td>
+                <td>{{ movement.performed_by.get_display_name|default:"-" }}</td>
+                <td>{{ movement.timestamp|date:"M d, H:i" }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="5" class="text-center">No stock movements recorded</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

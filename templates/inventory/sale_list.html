@@ -1,0 +1,102 @@
+{% extends "inventory/base.html" %}
+{% load i18n %}
+
+{% block app %}
+<div class="space-y-6">
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <h1 class="text-2xl font-bold">Sales History</h1>
+    <a href="{% url 'inventory:sale_create' %}" class="btn btn-primary">
+      <i class="fa fa-plus"></i> New Sale
+    </a>
+  </div>
+
+  <!-- Filters -->
+  <div class="card bg-base-100 shadow">
+    <div class="card-body">
+      <form method="get" class="flex flex-col md:flex-row gap-4">
+        <div class="form-control">
+          <label class="label"><span class="label-text">From Date</span></label>
+          <input type="date" name="date_from" value="{{ date_from }}" class="input input-bordered">
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text">To Date</span></label>
+          <input type="date" name="date_to" value="{{ date_to }}" class="input input-bordered">
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text">Staff Member</span></label>
+          <select name="staff" class="select select-bordered">
+            <option value="">All Staff</option>
+            {% for staff in staff_members %}
+              <option value="{{ staff.id }}" {% if staff.id|stringformat:"s" == selected_staff %}selected{% endif %}>
+                {{ staff.get_display_name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-control self-end">
+          <button type="submit" class="btn btn-primary">
+            <i class="fa fa-filter"></i> Filter
+          </button>
+        </div>
+        {% if date_from or date_to or selected_staff %}
+          <a href="{% url 'inventory:sale_list' %}" class="btn btn-ghost self-end">
+            <i class="fa fa-times"></i> Clear
+          </a>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+
+  <!-- Sales Table -->
+  <div class="card bg-base-100 shadow">
+    <div class="card-body p-0">
+      <div class="overflow-x-auto">
+        <table class="table table-zebra">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Date</th>
+              <th>Sold By</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Payment</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for sale in sales %}
+              <tr>
+                <td class="font-bold">#{{ sale.id }}</td>
+                <td>{{ sale.sale_date|date:"M d, Y H:i" }}</td>
+                <td>{{ sale.sold_by.get_display_name }}</td>
+                <td>{{ sale.get_total_items }}</td>
+                <td class="font-bold text-success">${{ sale.total_amount|floatformat:2 }}</td>
+                <td>
+                  <span class="badge badge-ghost">{{ sale.get_payment_method_display }}</span>
+                </td>
+                <td>
+                  <a href="{% url 'inventory:sale_detail' sale.pk %}" class="btn btn-sm btn-ghost">
+                    <i class="fa fa-eye"></i> View
+                  </a>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="7" class="text-center py-8">
+                  <div class="text-gray-500">
+                    <i class="fa fa-history text-4xl mb-2"></i>
+                    <p>No sales found</p>
+                    <a href="{% url 'inventory:sale_create' %}" class="btn btn-sm btn-primary mt-2">
+                      Record your first sale
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

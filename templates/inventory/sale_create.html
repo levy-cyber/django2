@@ -1,0 +1,149 @@
+{% extends "inventory/base.html" %}
+{% load i18n %}
+
+{% block app %}
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-bold">New Sale</h1>
+    <a href="{% url 'inventory:sale_list' %}" class="btn btn-ghost">
+      <i class="fa fa-times"></i> Cancel
+    </a>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Product Selection -->
+    <div class="lg:col-span-2 space-y-6">
+      <div class="card bg-base-100 shadow">
+        <div class="card-body">
+          <h2 class="card-title">Add Product to Cart</h2>
+          <form method="post" action="{% url 'inventory:sale_add_item' %}" class="space-y-4">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text font-bold">Product</span>
+                </label>
+                <select name="product_id" class="select select-bordered w-full" required>
+                  <option value="">Select a product</option>
+                  {% for product in products %}
+                    <option value="{{ product.id }}" {% if product.quantity == 0 %}disabled{% endif %}>
+                      {{ product.name }} ({{ product.sku }}) - ${{ product.price|floatformat:2 }}
+                      {% if product.quantity == 0 %} - OUT OF STOCK{% endif %}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text font-bold">Quantity</span>
+                </label>
+                <input type="number" name="quantity" value="1" min="1" class="input input-bordered w-full" required>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">
+              <i class="fa fa-plus"></i> Add to Cart
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Cart Items -->
+      <div class="card bg-base-100 shadow">
+        <div class="card-body">
+          <div class="flex justify-between items-center">
+            <h2 class="card-title">Shopping Cart</h2>
+            {% if cart_items %}
+              <a href="{% url 'inventory:sale_clear_cart' %}" class="btn btn-sm btn-error">
+                <i class="fa fa-trash"></i> Clear Cart
+              </a>
+            {% endif %}
+          </div>
+          
+          {% if cart_items %}
+            <div class="overflow-x-auto">
+              <table class="table table-zebra">
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item in cart_items %}
+                    <tr>
+                      <td>{{ item.product.name }}</td>
+                      <td>${{ item.product.price|floatformat:2 }}</td>
+                      <td>{{ item.quantity }}</td>
+                      <td class="font-bold">${{ item.total|floatformat:2 }}</td>
+                      <td>
+                        <a href="{% url 'inventory:sale_remove_item' item.product.id %}" class="btn btn-sm btn-error">
+                          <i class="fa fa-times"></i>
+                        </a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="3" class="text-right font-bold">Total:</td>
+                    <td colspan="2" class="font-bold text-success text-lg">${{ cart_total|floatformat:2 }}</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          {% else %}
+            <div class="text-center py-8 text-gray-500">
+              <i class="fa fa-shopping-cart text-4xl mb-2"></i>
+              <p>Your cart is empty</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Complete Sale Form -->
+    <div class="space-y-6">
+      <div class="card bg-base-100 shadow">
+        <div class="card-body">
+          <h2 class="card-title">Complete Sale</h2>
+          {% if cart_items %}
+            <form method="post" class="space-y-4">
+              {% csrf_token %}
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text font-bold">Payment Method</span>
+                </label>
+                {{ sale_form.payment_method }}
+              </div>
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text font-bold">Notes</span>
+                </label>
+                {{ sale_form.notes }}
+              </div>
+              <div class="alert alert-info">
+                <i class="fa fa-info-circle"></i>
+                <div>
+                  <div class="font-bold">Total: ${{ cart_total|floatformat:2 }}</div>
+                  <div class="text-sm">{{ cart_items|length }} item(s)</div>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-success w-full">
+                <i class="fa fa-check"></i> Complete Sale
+              </button>
+            </form>
+          {% else %}
+            <div class="alert alert-warning">
+              <i class="fa fa-exclamation-triangle"></i>
+              <span>Add products to cart before completing the sale</span>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

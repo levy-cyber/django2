@@ -1,0 +1,108 @@
+{% extends "inventory/base.html" %}
+{% load i18n %}
+
+{% block app %}
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-bold">Sale #{{ sale.id }}</h1>
+    <div class="flex gap-2">
+      <a href="{% url 'inventory:sale_list' %}" class="btn btn-ghost">
+        <i class="fa fa-arrow-left"></i> Back
+      </a>
+      <button onclick="window.print()" class="btn btn-secondary">
+        <i class="fa fa-print"></i> Print Receipt
+      </button>
+    </div>
+  </div>
+
+  <!-- Sale Details -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 space-y-6">
+      <!-- Items -->
+      <div class="card bg-base-100 shadow">
+        <div class="card-body">
+          <h2 class="card-title">Sale Items</h2>
+          <div class="overflow-x-auto">
+            <table class="table table-zebra">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>SKU</th>
+                  <th>Price</th>
+                  <th>Quantity</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in items %}
+                  <tr>
+                    <td>{{ item.product.name|default:"Deleted Product" }}</td>
+                    <td>{{ item.product.sku|default:"-" }}</td>
+                    <td>${{ item.unit_price|floatformat:2 }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td class="font-bold">${{ item.total_price|floatformat:2 }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="4" class="text-right font-bold text-lg">Total:</td>
+                  <td class="font-bold text-success text-lg">${{ sale.total_amount|floatformat:2 }}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      {% if sale.notes %}
+        <div class="card bg-base-100 shadow">
+          <div class="card-body">
+            <h2 class="card-title">Notes</h2>
+            <p>{{ sale.notes }}</p>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Sale Info -->
+    <div class="space-y-6">
+      <div class="card bg-base-100 shadow">
+        <div class="card-body">
+          <h2 class="card-title">Sale Information</h2>
+          <div class="space-y-4">
+            <div>
+              <label class="label"><span class="label-text font-bold">Sale ID</span></label>
+              <div class="text-lg">#{{ sale.id }}</div>
+            </div>
+            <div>
+              <label class="label"><span class="label-text font-bold">Date & Time</span></label>
+              <div>{{ sale.sale_date|date:"M d, Y H:i" }}</div>
+            </div>
+            <div>
+              <label class="label"><span class="label-text font-bold">Sold By</span></label>
+              <div>{{ sale.sold_by.get_display_name }}</div>
+            </div>
+            <div>
+              <label class="label"><span class="label-text font-bold">Payment Method</span></label>
+              <div>
+                <span class="badge badge-ghost">{{ sale.get_payment_method_display }}</span>
+              </div>
+            </div>
+            <div>
+              <label class="label"><span class="label-text font-bold">Total Items</span></label>
+              <div class="text-lg">{{ sale.get_total_items }}</div>
+            </div>
+            <div class="divider"></div>
+            <div>
+              <label class="label"><span class="label-text font-bold text-lg">Total Amount</span></label>
+              <div class="text-3xl font-bold text-success">${{ sale.total_amount|floatformat:2 }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

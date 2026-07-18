@@ -1,0 +1,158 @@
+{% extends "inventory/base.html" %}
+{% load i18n %}
+
+{% block app %}
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-2xl font-bold">
+      {% if product %}Edit Product{% else %}Add New Product{% endif %}
+    </h1>
+    <a href="{% url 'inventory:product_list' %}" class="btn btn-ghost">
+      <i class="fa fa-times"></i> Cancel
+    </a>
+  </div>
+
+  <div class="card bg-base-100 shadow max-w-4xl">
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+        
+        <!-- Basic Information -->
+        <h3 class="text-lg font-bold border-b pb-2">Basic Information</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">Product Name *</span>
+            </label>
+            {{ form.name }}
+            {% if form.name.errors %}
+              <label class="label">
+                <span class="label-text-alt text-error">{{ form.name.errors.0 }}</span>
+              </label>
+            {% endif %}
+          </div>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">SKU *</span>
+            </label>
+            {{ form.sku }}
+            {% if form.sku.errors %}
+              <label class="label">
+                <span class="label-text-alt text-error">{{ form.sku.errors.0 }}</span>
+              </label>
+            {% endif %}
+          </div>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">Barcode</span>
+            </label>
+            {{ form.barcode }}
+          </div>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">Category</span>
+            </label>
+            {{ form.category }}
+          </div>
+        </div>
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text">Description</span>
+          </label>
+          {{ form.description }}
+        </div>
+
+        <!-- Pricing -->
+        <h3 class="text-lg font-bold border-b pb-2">Pricing</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">Cost Price *</span>
+            </label>
+            {{ form.cost }}
+            {% if form.cost.errors %}
+              <label class="label">
+                <span class="label-text-alt text-error">{{ form.cost.errors.0 }}</span>
+              </label>
+            {% endif %}
+          </div>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">Selling Price *</span>
+            </label>
+            {{ form.price }}
+            {% if form.price.errors %}
+              <label class="label">
+                <span class="label-text-alt text-error">{{ form.price.errors.0 }}</span>
+              </label>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Stock -->
+        <h3 class="text-lg font-bold border-b pb-2">Stock</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">Initial Quantity *</span>
+            </label>
+            {{ form.quantity }}
+            {% if form.quantity.errors %}
+              <label class="label">
+                <span class="label-text-alt text-error">{{ form.quantity.errors.0 }}</span>
+              </label>
+            {% endif %}
+          </div>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">Minimum Stock Level *</span>
+            </label>
+            {{ form.min_stock_level }}
+            {% if form.min_stock_level.errors %}
+              <label class="label">
+                <span class="label-text-alt text-error">{{ form.min_stock_level.errors.0 }}</span>
+              </label>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Additional -->
+        <h3 class="text-lg font-bold border-b pb-2">Additional</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">Product Image</span>
+            </label>
+            {{ form.image }}
+            {% if product and product.image %}
+              <div class="mt-2">
+                <img src="{{ product.image.url }}" alt="Current image" class="w-24 h-24 object-cover rounded">
+              </div>
+            {% endif %}
+          </div>
+          <div class="form-control">
+            <label class="label cursor-pointer">
+              <span class="label-text">Active</span>
+              {{ form.is_active }}
+            </label>
+          </div>
+        </div>
+
+        {% if form.non_field_errors %}
+          <div class="alert alert-error">
+            <i class="fa fa-exclamation-circle"></i>
+            <span>{{ form.non_field_errors }}</span>
+          </div>
+        {% endif %}
+
+        <div class="card-actions justify-end">
+          <a href="{% url 'inventory:product_list' %}" class="btn btn-ghost">Cancel</a>
+          <button type="submit" class="btn btn-primary">
+            <i class="fa fa-save"></i> {% if product %}Update{% else %}Create{% endif %} Product
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
