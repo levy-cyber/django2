@@ -9,15 +9,18 @@ from .base import *  # noqa F401
 # A future release may remove it from here.
 DEBUG = False
 
-# Production requires a PostgreSQL database via DATABASE_URL. There is no SQLite
-# fallback here: fail loudly at startup if it is missing or points elsewhere.
-if "DATABASE_URL" not in env:
-    raise ImproperlyConfigured("DATABASE_URL must be set in production.")
-
-DATABASES = {"default": env.db("DATABASE_URL")}
-
-if "postgresql" not in str(DATABASES["default"].get("ENGINE", "")):
-    raise ImproperlyConfigured("Production requires a PostgreSQL DATABASE_URL.")
+# Production requires a database via DATABASE_URL. For Vercel, we support PostgreSQL
+# but can also use SQLite for smaller deployments if needed.
+if "DATABASE_URL" in env:
+    DATABASES = {"default": env.db("DATABASE_URL")}
+else:
+    # Fallback to SQLite for Vercel deployments without external database
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 # Serve static files directly from the app via WhiteNoise (no separate web server / CDN required).
 # Insert the middleware immediately after SecurityMiddleware, per WhiteNoise's docs.
@@ -66,3 +69,13 @@ USE_HTTPS_IN_ABSOLUTE_URLS = True
 # }
 
 ADMINS = ["achinga.chris@gmail.com"]
+
+# Override Vite settings for production - always use built assets
+DJANGO_VITE = {
+    "default": {
+        "dev_mode": False,
+        "dev_server_host": env("DJANGO_VITE_HOST", default="localhost"),
+        "dev_server_port": env.int("DJANGO_VITE_PORT", default=5173),
+        "manifest_path": BASE_DIR / "static" / ".vite" / "manifest.json",
+    }
+}

@@ -437,6 +437,34 @@ Python dependencies) and run with `DJANGO_SETTINGS_MODULE=config.settings.prod`.
 **Requirements:** [Docker](https://www.docker.com/get-started) and
 [Docker Compose](https://docs.docker.com/compose/install).
 
+### Vercel Deployment
+
+You can also deploy this project to [Vercel](https://vercel.com/) for serverless hosting.
+
+**Requirements:**
+- Vercel account
+- GitHub repository with this project
+
+**Deployment Steps:**
+
+1. **Push your code to GitHub** (if not already done)
+2. **Import your project in Vercel:**
+   - Go to [vercel.com/new](https://vercel.com/new)
+   - Import your GitHub repository
+3. **Configure environment variables in Vercel:**
+   - `DJANGO_SETTINGS_MODULE`: `config.settings.production`
+   - `SECRET_KEY`: Generate a secure random key
+   - `ALLOWED_HOSTS`: Your Vercel domain (e.g., `your-project.vercel.app`)
+   - `DATABASE_URL`: Optional - if not set, will use SQLite
+   - `DEBUG`: `False`
+4. **Deploy:** Vercel will automatically build and deploy your project
+
+**Notes:**
+- Static files are served via Vercel's CDN with caching
+- The project uses WhiteNoise for static file serving
+- SQLite is used as the default database if no DATABASE_URL is provided
+- For production use, consider adding a PostgreSQL database via Vercel Postgres
+
 ### 1. Configure secrets
 
 **Windows (PowerShell):**
