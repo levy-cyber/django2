@@ -6,4 +6,5 @@ app_name = "users"
 urlpatterns = [
     path("profile/", views.profile, name="user_profile"),
     path("profile/upload-image/", views.upload_profile_image, name="upload_profile_image"),
+    path("password/change/", views.CustomPasswordChangeView.as_view(), name="password_change"),
 ]

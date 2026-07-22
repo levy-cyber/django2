@@ -1,8 +1,11 @@
 from allauth.account.models import EmailAddress
 from django.contrib import messages
+from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import PasswordChangeView
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.http import require_POST
 
@@ -67,3 +70,17 @@ def upload_profile_image(request):
     else:
         readable_errors = ", ".join(str(error) for key, errors in form.errors.items() for error in errors)
         return JsonResponse(status=400, data={"errors": readable_errors})
+
+
+class CustomPasswordChangeView(PasswordChangeView):
+    template_name = "account/password_change.html"
+    success_url = reverse_lazy("account_login")
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        logout(self.request)
+        messages.success(
+            self.request,
+            "Your password has been changed successfully. Please log in with your new password."
+        )
+        return redirect(self.success_url)

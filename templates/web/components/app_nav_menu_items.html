@@ -23,7 +23,7 @@
   </li>
   {% if user.has_usable_password %}
   <li>
-    <a href="{% url 'account_change_password' %}" {% if 'accounts/password/change' in request.path %}class="menu-active"{% endif %}>
+    <a href="{% url 'users:password_change' %}" {% if 'users/password/change' in request.path %}class="menu-active"{% endif %}>
       <i class="fa fa-unlock-alt h-4 w-4"></i>
       {% translate "Change Password" %}
     </a>
