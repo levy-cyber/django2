@@ -25,6 +25,7 @@ _dist/
 .env
 .env.prod
 .env.production
+.env.local
 .DS_Store
 .direnv
 .envrc
