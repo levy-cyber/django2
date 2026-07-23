@@ -34,7 +34,8 @@ ENV PYTHONUNBUFFERED=1 \
     UV_CACHE_DIR=/tmp/uv-cache \
     UV_PROJECT_ENVIRONMENT=/home/django/.venv \
     PATH="/home/django/.venv/bin:$PATH" \
-    DJANGO_SETTINGS_MODULE=config.settings.prod
+    DJANGO_SETTINGS_MODULE=config.settings.prod \
+    DEBUG=False
 
 # OS-level dependencies:
 #   gettext   - translation compilation

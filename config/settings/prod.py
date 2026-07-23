@@ -9,6 +9,10 @@ from .base import *  # noqa F401
 # A future release may remove it from here.
 DEBUG = False
 
+# Remove dev-only apps that may have been added in base.py
+INSTALLED_APPS = [app for app in INSTALLED_APPS if app != "django_browser_reload"]
+MIDDLEWARE = [mw for mw in MIDDLEWARE if "django_browser_reload" not in str(mw)]
+
 # Production requires a database via DATABASE_URL. For Render, we support PostgreSQL
 # but can also use SQLite for smaller deployments if needed.
 if "DATABASE_URL" in env:
