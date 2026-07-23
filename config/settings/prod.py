@@ -9,18 +9,19 @@ from .base import *  # noqa F401
 # A future release may remove it from here.
 DEBUG = False
 
-# Production requires a database via DATABASE_URL. For Vercel, we support PostgreSQL
-# SQLite doesn't work in serverless environments due to lack of persistent file storage
+# Production requires a database via DATABASE_URL. For Render, we support PostgreSQL
+# but can also use SQLite for smaller deployments if needed.
 if "DATABASE_URL" in env:
     DATABASES = {"default": env.db("DATABASE_URL")}
 else:
-    # Vercel serverless requires a real database - SQLite won't work
-    # Use Vercel Postgres or add DATABASE_URL environment variable
-    raise ImproperlyConfigured(
-        "DATABASE_URL environment variable is required for Vercel deployment. "
-        "SQLite is not supported in serverless environments. "
-        "Add a PostgreSQL database via Vercel Postgres or external provider."
-    )
+    # Fallback to SQLite for Render deployments without external database
+    # Render supports persistent storage, so SQLite works
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
 
 # Serve static files directly from the app via WhiteNoise (no separate web server / CDN required).
 # Insert the middleware immediately after SecurityMiddleware, per WhiteNoise's docs.
