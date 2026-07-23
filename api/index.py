@@ -15,4 +15,4 @@ django.setup()
 from django.core.wsgi import get_wsgi_application
 
 # Get the WSGI application (must be top-level for Vercel)
-application = get_wsgi_application()
+app = get_wsgi_application()
