@@ -51,7 +51,7 @@ git push origin main
 Go to your web service → **Settings** → **Environment Variables** and add:
 
 **Required:**
-- `DJANGO_SETTINGS_MODULE` = `config.settings.production`
+- `DJANGO_SETTINGS_MODULE` = `config.settings.prod`
 - `DEBUG` = `False`
 - `ALLOWED_HOSTS` = `your-app-name.onrender.com` (replace with your actual Render URL)
 
